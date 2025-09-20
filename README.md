@@ -12,9 +12,9 @@ Built with ethers v6. Works in React, Next.js, Vue, and vanilla JS.
 ## Installation
 
 ```bash
-npm install oathstone-client
+npm install oathstone-js
 # or
-yarn add oathstone-client
+yarn add oathstone-js
 ```
 
 ## TypeScript Quick Start
@@ -23,7 +23,7 @@ yarn add oathstone-client
 import OathstoneClient, {
   type OathstoneConfig,
   type WalletInfo,
-} from "oathstone-client";
+} from "oathstone-js";
 
 const config: OathstoneConfig = {
   networks: {
@@ -69,7 +69,7 @@ main().catch(console.error);
 ```tsx
 "use client";
 import React from "react";
-import OathstoneClient, { type OathstoneConfig, type WalletInfo } from "oathstone-client";
+import OathstoneClient, { type OathstoneConfig, type WalletInfo } from "oathstone-js";
 
 const config: OathstoneConfig = {
   networks: {
@@ -157,7 +157,7 @@ Outputs ESM bundle to `dist/index.js` and TypeScript declarations to `dist/index
 npm login
 ```
 
-2) Ensure package name is available or scoped (e.g., @your-scope/oathstone-client). Update package.json fields (name, version, repository, author).
+2) Ensure package name is available or scoped (e.g., @oathstone/oathstone-js). Update package.json fields (name, version, repository, author).
 
 3) Version bump:
 ```bash
@@ -172,8 +172,12 @@ npm publish --access public
 
 After publish, consumers can:
 ```bash
-npm install oathstone-client
+npm install oathstone-js
 ```
+
+## Organization
+
+This package is maintained by Oathstone: http://github.com/oathstone
 
 ## License
 

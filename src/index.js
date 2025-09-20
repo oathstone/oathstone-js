@@ -11,7 +11,7 @@ import { ethers } from "ethers";
  * Works in React, Next.js, Vue and other modern frontend frameworks.
  *
  * Usage:
- *   import { OathstoneClient } from "oathstone-client";
+ *   import { OathstoneClient } from "oathstone-js";
  *   const client = new OathstoneClient(config);
  *   await client.connectNetworks();
  *   await client.loadContracts();

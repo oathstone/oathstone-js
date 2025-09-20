@@ -1,5 +1,5 @@
 {
-  "name": "oathstone-client",
+  "name": "oathstone-js",
   "version": "0.1.1",
   "description": "Browser-friendly SDK to create wallets, get balances, and transfer native/ERC-20 tokens across multiple EVM networks.",
   "type": "module",
@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-org/oathstone-client.git"
+    "url": "git+https://github.com/oathstone/oathstone-js.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/oathstone-client/issues"
+    "url": "https://github.com/oathstone/oathstone-js/issues"
   },
-  "homepage": "https://github.com/your-org/oathstone-client#readme",
+  "homepage": "https://github.com/oathstone/oathstone-js#readme",
   "keywords": [
     "ethers",
     "web3",
@@ -34,7 +34,7 @@
     "react",
     "nextjs"
   ],
-  "author": "",
+  "author": "Oathstone <http://github.com/oathstone>",
   "license": "MIT",
   "dependencies": {
     "ethers": "^6.13.2"
