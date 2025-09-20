@@ -12,6 +12,100 @@ import { ethers } from "ethers";
  *
  * Usage:
  *   import { OathstoneClient } from "oathstone-js";
+ *   // Option A: provide config inline
+ *   const client = new OathstoneClient(config);
+ *   // Option B: host a JSON config at /oathstone.config.json (see README) and let the SDK fetch it
+ *   const client2 = await OathstoneClient.fromRemote(); // defaults to DEFAULT_CONFIG_URL
+ *
+ *   await client.connectNetworks();
+ *   await client.loadContracts();
+ *   const wallet = client.createWallet();
+ */
+export const DEFAULT_CONFIG_URL = "/oathstone.config.json";
+
+export class OathstoneClient {
+  constructor(config) {
+    // Config is optional now. If not provided, we'll attempt to lazy-load from DEFAULT_CONFIG_URL.
+    this.config = config ? OathstoneClient.validateConfig(config) : null;
+    this.providers = {};
+    this.contracts = {};
+    this._triedAutoLoad = false;
+  }
+
+  // Ensure a config exists; if not, try to fetch from DEFAULT_CONFIG_URL in the browser.
+  async ensureConfigLoaded(url = DEFAULT_CONFIG_URL) {
+    if (this.config) return;
+    if (typeof fetch !== "function") {
+      throw new Error("No config provided and fetch is not available to auto-load a hosted config.");
+    }
+    if (this._triedAutoLoad) {
+      throw new Error("Config is not set. Provide a config to the constructor or host one at /oathstone.config.json.");
+    }
+    this._triedAutoLoad = true;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch config from ${url}: ${res.status}`);
+    const json = await res.json();
+    this.config = OathstoneClient.validateConfig(json);
+  }
+
+  // Create an instance by fetching a config from URL (browser-friendly).
+  static async fromRemote(url = DEFAULT_CONFIG_URL) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch config from ${url}: ${res.status}`);
+    const json = await res.json();
+    return new OathstoneClient(json);
+  }
+
+  // Validates and normalizes the config (accepts token.address or token.contractAddress)
+  static validateConfig(config) {
+    if (!config || !config.networks) {
+      throw new Error("Invalid config: expected { networks: {...} }");
+    }
+    const normalized = { ...config, networks: { ...config.networks } };
+    for (const [n, net] of Object.entries(normalized.networks)) {
+      if (!net || !net.rpcUrl) {
+        throw new Error(`Network ${n} missing rpcUrl`);
+      }
+      const tokens = net.tokens || {};
+      const normTokens = {};
+      for (const [t, tk] of Object.entries(tokens)) {
+        const address = tk.contractAddress || tk.address;
+        normTokens[t] = { ...tk, contractAddress: address };
+      }
+      normalized.networks[n] = { ...net, tokens: normTokens };
+    }
+    return normalized;
+  }
+
+  // Picks correct RPC URL given environment flag (0 = testnet, else mainnet)
+  static resolveRpcUrl(networkConfig) {
+    const isTestnet = Number(networkConfig.environment) === 0;
+    const rpcUrl =
+      isTestnet ? networkConfig.rpcUrl?.testnet : networkConfig.rpcUrl?.mainnet;
+    if (!rpcUrl) {
+      throw new Error("Missing rpcUrl for network (check testnet/mainnet keys)");
+    }
+    return rpcUrl;
+  }
+
+  // Minimal ERC-20 ABI (overridable per-token via config.tokens[TOKEN].abi)
+  static get ERC20_ABI() {
+    return [
+      { constant: true, inputs: [{ name: "owner", type: "address" }], name: "balanceOf", outputs: [{ name: "", type: "uint256" }], type: "function", stateMutability: "view" },
+      { constant: false, inputs: [{ name: "to", type: "address" }, { name: "amount", type: "uint256" }], name: "transfer", outputs: [{ name: "", type: "bool" }], type: "function", stateMutability: "nonpayable" },
+
+/**
+ * OathstoneClient
+ * Lightweight browser-friendly SDK to:
+ * - connect to multiple EVM networks via RPC
+ * - create wallets
+ * - get native and ERC-20 token balances
+ * - transfer native and ERC-20 tokens
+ *
+ * Works in React, Next.js, Vue and other modern frontend frameworks.
+ *
+ * Usage:
+ *   import { OathstoneClient } from "oathstone-js";
  *   const client = new OathstoneClient(config);
  *   await client.connectNetworks();
  *   await client.loadContracts();
@@ -80,6 +174,7 @@ export class OathstoneClient {
   }
 
   async connectNetworks() {
+    await this.ensureConfigLoaded();
     for (const [networkName, networkConfig] of Object.entries(this.config.networks)) {
       const rpcUrl = OathstoneClient.resolveRpcUrl(networkConfig);
       this.providers[networkName] = new ethers.JsonRpcProvider(rpcUrl);
@@ -91,6 +186,7 @@ export class OathstoneClient {
     if (!Object.keys(this.providers).length) {
       await this.connectNetworks();
     }
+    await this.ensureConfigLoaded();
     for (const [networkName, networkConfig] of Object.entries(this.config.networks)) {
       this.contracts[networkName] = this.contracts[networkName] || {};
       const tokens = networkConfig.tokens || {};

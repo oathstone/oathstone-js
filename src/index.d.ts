@@ -35,11 +35,16 @@ export interface TxResult {
   token?: string;
 }
 
+export const DEFAULT_CONFIG_URL: string;
+
 export class OathstoneClient {
-  constructor(config: OathstoneConfig);
+  constructor(config?: OathstoneConfig);
+
+  /** Lazily ensure a config is available (loads from DEFAULT_CONFIG_URL if not provided) */
+  ensureConfigLoaded(url?: string): Promise<void>;
 
   /** Create an instance by fetching a JSON config (same shape as data.json) from a URL */
-  static fromRemote(url: string): Promise<OathstoneClient>;
+  static fromRemote(url?: string): Promise<OathstoneClient>;
 
   /** Validate and normalize a config (ensures token.contractAddress is set). Throws on invalid config. */
   static validateConfig(config: OathstoneConfig): OathstoneConfig;
