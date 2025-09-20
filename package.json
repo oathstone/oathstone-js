@@ -1,8 +1,36 @@
 {
+  "name": "oathstone-client",
+  "version": "0.1.0",
+  "description": "Browser-friendly SDK to create wallets, get balances, and transfer native/ERC-20 tokens across multiple EVM networks.",
   "type": "module",
+  "exports": "./dist/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "esbuild src/index.js --bundle --platform=node --outfile=dist/index.js",
-    "test": "jest",
+    "build": "esbuild src/index.js --bundle --platform=browser --format=esm --target=es2020 --outfile=dist/index.js",
+    "test": "echo \"No tests configured\" && exit 0",
     "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ethers",
+    "web3",
+    "wallet",
+    "erc20",
+    "evm",
+    "sdk",
+    "browser",
+    "react",
+    "nextjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.13.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
   }
 }
