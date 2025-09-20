@@ -1,19 +1,28 @@
 {
   "name": "oathstone-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Browser-friendly SDK to create wallets, get balances, and transfer native/ERC-20 tokens across multiple EVM networks.",
   "type": "module",
   "exports": "./dist/index.js",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "esbuild src/index.js --bundle --platform=browser --format=esm --target=es2020 --outfile=dist/index.js",
+    "build": "esbuild src/index.js --bundle --platform=browser --format=esm --target=es2020 --outfile=dist/index.js && cp src/index.d.ts dist/index.d.ts",
     "test": "echo \"No tests configured\" && exit 0",
     "prepublishOnly": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/oathstone-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/oathstone-client/issues"
+  },
+  "homepage": "https://github.com/your-org/oathstone-client#readme",
   "keywords": [
     "ethers",
     "web3",
