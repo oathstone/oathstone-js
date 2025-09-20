@@ -16,15 +16,45 @@ import { ethers } from "ethers";
  *   await client.connectNetworks();
  *   await client.loadContracts();
  *   const wallet = client.createWallet();
+ *
+ * If you previously used a data.json file on the server, pass the same shape
+ * of data as the `config` object, or use:
+ *   const client = await OathstoneClient.fromRemote('/path/to/data.json');
  */
 export class OathstoneClient {
   constructor(config) {
     if (!config || !config.networks) {
       throw new Error("Invalid config: expected { networks: {...} }");
     }
-    this.config = config;
+    this.config = OathstoneClient.validateConfig(config);
     this.providers = {};
     this.contracts = {};
+  }
+
+  // Create an instance by fetching a data.json-like config from a URL (browser-friendly).
+  static async fromRemote(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch config from ${url}: ${res.status}`);
+    const json = await res.json();
+    return new OathstoneClient(json);
+  }
+
+  // Validates and normalizes the config (accepts token.address or token.contractAddress)
+  static validateConfig(config) {
+    const normalized = { ...config, networks: { ...config.networks } };
+    for (const [n, net] of Object.entries(normalized.networks)) {
+      if (!net || !net.rpcUrl) {
+        throw new Error(`Network ${n} missing rpcUrl`);
+      }
+      const tokens = net.tokens || {};
+      const normTokens = {};
+      for (const [t, tk] of Object.entries(tokens)) {
+        const address = tk.contractAddress || tk.address;
+        normTokens[t] = { ...tk, contractAddress: address };
+      }
+      normalized.networks[n] = { ...net, tokens: normTokens };
+    }
+    return normalized;
   }
 
   // Picks correct RPC URL given environment flag (0 = testnet, else mainnet)

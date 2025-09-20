@@ -38,6 +38,12 @@ export interface TxResult {
 export class OathstoneClient {
   constructor(config: OathstoneConfig);
 
+  /** Create an instance by fetching a JSON config (same shape as data.json) from a URL */
+  static fromRemote(url: string): Promise<OathstoneClient>;
+
+  /** Validate and normalize a config (ensures token.contractAddress is set). Throws on invalid config. */
+  static validateConfig(config: OathstoneConfig): OathstoneConfig;
+
   static resolveRpcUrl(networkConfig: NetworkConfig): string;
   static readonly ERC20_ABI: any[];
 
